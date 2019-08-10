@@ -240,9 +240,14 @@ void System::reset() {
   input.connect(1, configuration.controller_port2);
 }
 
-void System::scanline() {
+void System::scanline(bool& frame_event_performed) {
   video.scanline();
-  if(cpu.vcounter() == 241) scheduler.exit(Scheduler::ExitReason::FrameEvent);
+  if(cpu.vcounter() == 241) {
+    if(!frame_event_performed) {
+      scheduler.exit(Scheduler::ExitReason::FrameEvent);
+    }
+    frame_event_performed = true;
+  }
 }
 
 void System::frame() {

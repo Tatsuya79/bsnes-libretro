@@ -139,6 +139,8 @@ void CPU::reset() {
   status.nmi_transition = false;
   status.nmi_pending = false;
 
+  status.frame_event_performed = false;
+
   status.irq_valid = false;
   status.irq_line = false;
   status.irq_transition = false;

@@ -44,7 +44,7 @@ void CPU::scanline() {
   synchronize_smp();
   synchronize_ppu();
   synchronize_coprocessors();
-  system.scanline();
+  system.scanline(status.frame_event_performed);
 
   if(vcounter() == 0) {
     //HDMA init triggers once every frame
@@ -179,6 +179,8 @@ void CPU::timing_reset() {
   status.nmi_transition = false;
   status.nmi_pending    = false;
   status.nmi_hold       = false;
+
+  status.frame_event_performed = false;
 
   status.irq_valid      = false;
   status.irq_line       = false;

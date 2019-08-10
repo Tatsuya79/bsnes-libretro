@@ -9,7 +9,16 @@ void CPU::poll_interrupts() {
   //NMI hold
   if(status.nmi_hold) {
     status.nmi_hold = false;
-    if(status.nmi_enabled) status.nmi_transition = true;
+    if(status.nmi_enabled)
+    {
+      status.nmi_transition = true;
+#ifdef SFC_LAGFIX
+      if (!status.frame_event_performed) {
+        scheduler.exit(Scheduler::ExitReason::FrameEvent);
+      }
+      status.frame_event_performed = true;
+#endif
+    }
   }
 
   //NMI test
@@ -21,6 +30,7 @@ void CPU::poll_interrupts() {
   } else if(status.nmi_valid && !nmi_valid) {
     //1->0 edge sensitive transition
     status.nmi_line = false;
+    status.frame_event_performed = false;
   }
   status.nmi_valid = nmi_valid;
 
@@ -57,6 +67,12 @@ void CPU::nmitimen_update(uint8 data) {
   //0->1 edge sensitive transition
   if(!nmi_enabled && status.nmi_enabled && status.nmi_line) {
     status.nmi_transition = true;
+#ifdef SFC_LAGFIX
+    if (!status.frame_event_performed) {
+      scheduler.exit(Scheduler::ExitReason::FrameEvent);
+    }
+    status.frame_event_performed = true;
+#endif
   }
 
   //?->1 level sensitive transition
